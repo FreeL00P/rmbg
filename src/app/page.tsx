@@ -12,7 +12,7 @@ export default function RMBGPage() {
   const [originalUrl, setOriginalUrl] = useState<string>("");
   const [processedUrl, setProcessedUrl] = useState<string>("");
   const [showResult, setShowResult] = useState(false);
-  const [sliderRatio, setSliderRatio] = useState(0.4);
+  const [sliderRatio, setSliderRatio] = useState(0.5);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -112,7 +112,7 @@ export default function RMBGPage() {
         setOriginalUrl(img.src);
         setProcessedUrl(outCanvas.toDataURL("image/png"));
         setShowResult(true);
-        setSliderRatio(0.4);
+        setSliderRatio(0.5);
         updateStatus("完成！可滑动对比，点击下载透明图", "success");
       } catch (e) {
         updateStatus("AI处理失败，请重试或更换图片。}"+e, "error");
@@ -201,7 +201,7 @@ export default function RMBGPage() {
     setOriginalUrl("");
     setProcessedUrl("");
     setShowResult(false);
-    setSliderRatio(0.4);
+    setSliderRatio(0.5);
     updateStatus("", "info");
     if (inputRef.current) inputRef.current.value = "";
   }
