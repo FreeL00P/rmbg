@@ -1,5 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import * as ort from "onnxruntime-web";
 
 const MODEL_URL = "/u2net.onnx";
@@ -14,7 +15,6 @@ export default function RMBGPage() {
   const [sliderRatio, setSliderRatio] = useState(0.4);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showCompare, setShowCompare] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const originalImgRef = useRef<HTMLImageElement>(null);
@@ -24,7 +24,7 @@ export default function RMBGPage() {
     setStatus({ text, type });
   }
 
-  async function loadModel() {
+  const loadModel = useCallback(async () => {
     try {
       updateStatus("AI模型加载中...", "loading");
       const s = await ort.InferenceSession.create(MODEL_URL);
@@ -34,7 +34,7 @@ export default function RMBGPage() {
       updateStatus("模型加载失败，请检查模型文件。", "error");
       throw e;
     }
-  }
+  }, []);
 
   function preprocess(image: HTMLImageElement, size = 320) {
     const canvas = document.createElement("canvas");
@@ -112,10 +112,10 @@ export default function RMBGPage() {
         setOriginalUrl(img.src);
         setProcessedUrl(outCanvas.toDataURL("image/png"));
         setShowResult(true);
-        setSliderRatio(0.5);
+        setSliderRatio(0.4);
         updateStatus("完成！可滑动对比，点击下载透明图", "success");
       } catch (e) {
-        updateStatus("AI处理失败，请重试或更换图片。", "error");
+        updateStatus("AI处理失败，请重试或更换图片。}"+e, "error");
       } finally {
         setIsLoading(false);
       }
@@ -139,7 +139,8 @@ export default function RMBGPage() {
     setIsDragging(true);
     e.preventDefault();
   }
-  function handleSliderMove(e: MouseEvent | TouchEvent) {
+
+  const handleSliderMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!isDragging || !wrapperRef.current) return;
     const rect = wrapperRef.current.getBoundingClientRect();
     let clientX = (e as MouseEvent).clientX;
@@ -150,7 +151,8 @@ export default function RMBGPage() {
     if (x < 0) x = 0;
     if (x > rect.width) x = rect.width;
     setSliderRatio(x / rect.width);
-  }
+  }, [isDragging]);
+
   function handleSliderUp() {
     setIsDragging(false);
   }
@@ -176,7 +178,7 @@ export default function RMBGPage() {
       window.removeEventListener("touchend", handleSliderUp);
       window.removeEventListener("touchcancel", handleSliderUp);
     };
-  }, [isDragging]);
+  }, [isDragging, handleSliderMove]);
 
   useEffect(() => {
     function adjustHeight() {
@@ -192,7 +194,7 @@ export default function RMBGPage() {
 
   useEffect(() => {
     if (!session) loadModel();
-  }, []);
+  }, [session, loadModel]);
 
   function reset() {
     setFile(null);
@@ -232,7 +234,7 @@ export default function RMBGPage() {
           </div>
           <div
             className="flex flex-col gap-4 items-center"
-            onDragOver={e => e.preventDefault()}
+            onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
           >
             <label
@@ -300,7 +302,7 @@ export default function RMBGPage() {
                 <img
                   ref={originalImgRef}
                   src={originalUrl}
-                  // alt="原图"
+                  alt="原图"
                   className="absolute top-0 left-0 w-full h-full object-contain select-none rounded-2xl"
                   style={{
                     zIndex: 1,
@@ -313,7 +315,7 @@ export default function RMBGPage() {
                 <img
                   ref={processedImgRef}
                   src={processedUrl}
-                  // alt="去背景"
+                  alt="去背景"
                   className="absolute top-0 left-0 w-full h-full object-contain select-none rounded-2xl pointer-events-none"
                   style={{
                     zIndex: 2,
