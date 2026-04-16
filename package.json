@@ -12,6 +12,7 @@
     "@chakra-ui/react": "^3.21.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@imgly/background-removal": "^1.7.0",
     "framer-motion": "^12.19.1",
     "next": "15.3.4",
     "onnxruntime-web": "^1.22.0",
